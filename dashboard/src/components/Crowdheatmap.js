@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useZones } from '../hooks/useFirestore';
 
-const MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '';
+const MAPS_API_KEY = process.env.REACT_APP_MAPS_API_KEY || '';
 
 /**
  * Stadium zone polygon definitions for M. Chinnaswamy Stadium, Bengaluru.
@@ -285,7 +285,7 @@ export default function CrowdHeatmap() {
           <div className="text-center text-gray-400 space-y-2">
             <div className="text-4xl">🗺️</div>
             <div className="text-sm">Google Maps unavailable</div>
-            <div className="text-xs text-gray-500">Set REACT_APP_GOOGLE_MAPS_API_KEY</div>
+            <div className="text-xs text-gray-500">Set REACT_APP_MAPS_API_KEY</div>
             {/* Fallback grid view */}
             <div className="grid grid-cols-4 gap-2 mt-4">
               {ZONE_DEFINITIONS.map((zd) => {

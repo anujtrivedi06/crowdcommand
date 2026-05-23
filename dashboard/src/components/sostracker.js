@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useActiveSOS } from '../hooks/useFirestore';
 import { resolveSOS } from '../services/api';
 
-const MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '';
+const MAPS_API_KEY = process.env.REACT_APP_MAPS_API_KEY || '';
 
 /**
  * Formats a Firestore Timestamp or ISO string.
@@ -223,7 +223,7 @@ export default function SOSTracker() {
         {(!mapsReady || loading) && (
           <div className="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
             <span className="text-gray-500 text-xs">
-              {mapsError ? 'Map unavailable — set REACT_APP_GOOGLE_MAPS_API_KEY' : 'Loading map…'}
+              {mapsError ? 'Map unavailable — set REACT_APP_MAPS_API_KEY' : 'Loading map…'}
             </span>
           </div>
         )}

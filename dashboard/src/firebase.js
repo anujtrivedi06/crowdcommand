@@ -85,7 +85,7 @@ async function initMessaging() {
  * @returns {string} Google Maps API key or empty string
  */
 function getMapsApiKey() {
-  return process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "";
+  return process.env.REACT_APP_MAPS_API_KEY || "";
 }
 
 /**

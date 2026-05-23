@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useVolunteers } from '../hooks/useFirestore';
 
-const MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '';
+const MAPS_API_KEY = process.env.REACT_APP_MAPS_API_KEY || '';
 
 /**
  * Returns marker colour config for a volunteer status.
@@ -214,7 +214,7 @@ export default function VolunteerMap() {
             <div className="text-center">
               <div className="text-3xl mb-1">👤</div>
               <div className="text-xs text-gray-400">Map unavailable</div>
-              <div className="text-xs text-gray-600">Set REACT_APP_GOOGLE_MAPS_API_KEY</div>
+              <div className="text-xs text-gray-600">Set REACT_APP_MAPS_API_KEY</div>
             </div>
           </div>
         )}
