@@ -1,0 +1,17 @@
+{
+  "projects": {
+    "default": "crowdcommand"
+  },
+  "targets": {
+    "crowdcommand": {
+      "hosting": {
+        "dashboard": [
+          "crowdcommand"
+        ],
+        "fan-pwa": [
+          "crowdcommand-fan"
+        ]
+      }
+    }
+  }
+}

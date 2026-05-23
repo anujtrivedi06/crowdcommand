@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="theme-color" content="#111827" />
+    <meta name="description" content="CrowdCommand Fan App — real-time gate info, exit guidance, and emergency SOS for M. Chinnaswamy Stadium." />
+
+    <!-- PWA meta tags -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="CrowdCommand" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="CrowdCommand Fan App" />
+    <meta property="og:description" content="Your real-time stadium companion — gate info, exit routes, and emergency SOS." />
+    <meta property="og:type" content="website" />
+
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+
+    <title>CrowdCommand Fan</title>
+
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body, #root {
+        height: 100%;
+        width: 100%;
+        background: #111827;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        overscroll-behavior: none;
+      }
+      /* Prevent iOS bounce scroll on body */
+      body { position: fixed; overflow: hidden; width: 100%; }
+      #root { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    </style>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to use the CrowdCommand Fan App.</noscript>
+    <div id="root"></div>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "projects": {},
+  "targets": {
+    "crowdcommand-5d00a": {
+      "hosting": {
+        "dashboard": [
+          "crowdcommand-5d00a"
+        ],
+        "fan-pwa": [
+          "crowdcommand-5d00a-fan"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
