@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { collection, doc, onSnapshot } from "firebase/firestore";
 import { db, initMessaging, getFunctionsBaseUrl } from "./firebase";
+import "./App.css";
 
 import CrowdHeatmap from "./components/CrowdHeatmap";
 import AlertFeed from "./components/AlertFeed";
@@ -26,21 +27,21 @@ const styles = {
   app: {
     display: "flex",
     flexDirection: "column",
-    height: "100vh",
-    width: "100vw",
-    background: "#0f172a",
+    minHeight: "100vh",
+    width: "100%",
+    background: "#0a0a1a",
     color: "#f1f5f9",
     fontFamily: "'Inter', sans-serif",
-    overflow: "hidden",
+    overflow: "auto",
   },
   header: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     padding: "0 20px",
-    height: "52px",
-    background: "#1e293b",
-    borderBottom: "1px solid #334155",
+    minHeight: "56px",
+    background: "#131729",
+    borderBottom: "1px solid #252c44",
     flexShrink: 0,
     zIndex: 10,
   },
@@ -102,35 +103,53 @@ const styles = {
     fontFamily: "'JetBrains Mono', monospace",
   },
   tabs: {
-    display: "flex",
-    gap: "2px",
-    padding: "8px 20px 0",
-    background: "#1e293b",
-    borderBottom: "1px solid #334155",
+    display: "block",
+    padding: "10px 20px 0",
+    background: "#131729",
+    borderBottom: "1px solid #252c44",
     flexShrink: 0,
   },
+  tabsInner: {
+    display: "flex",
+    gap: "4px",
+    width: "100%",
+    maxWidth: "1460px",
+    margin: "0 auto",
+    overflowX: "auto",
+  },
   tab: {
-    padding: "7px 16px",
-    fontSize: "12px",
-    fontWeight: 500,
-    color: "#64748b",
-    background: "transparent",
-    border: "none",
-    borderBottom: "2px solid transparent",
+    padding: "9px 16px",
+    fontSize: "13px",
+    fontWeight: 600,
+    color: "#93a0bd",
+    background: "#101629",
+    border: "1px solid #222a43",
+    borderBottom: "none",
     cursor: "pointer",
-    transition: "all 0.15s ease",
-    borderRadius: "4px 4px 0 0",
+    transition: "all 0.2s ease",
+    borderRadius: "9px 9px 0 0",
     letterSpacing: "0.02em",
+    whiteSpace: "nowrap",
   },
   tabActive: {
-    color: "#f1f5f9",
-    borderBottomColor: "#3b82f6",
-    background: "#0f172a",
+    color: "#e2ebff",
+    background: "linear-gradient(180deg, #26365d 0%, #18213a 100%)",
+    borderColor: "#334a80",
+    boxShadow: "inset 0 -2px 0 #55a6ff",
   },
   body: {
     flex: 1,
-    overflow: "hidden",
+    overflow: "auto",
     position: "relative",
+    padding: "16px 20px 20px",
+    background: "#0a0a1a",
+  },
+  bodyInner: {
+    width: "100%",
+    maxWidth: "1460px",
+    margin: "0 auto",
+    height: "calc(100vh - 136px)",
+    minHeight: 540,
   },
   endMatchBtn: {
     padding: "5px 14px",
@@ -361,37 +380,41 @@ export default function App() {
 
       {/* ── Tab bar ── */}
       <nav style={styles.tabs}>
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            style={{
-              ...styles.tab,
-              ...(activeTab === tab.id ? styles.tabActive : {}),
-            }}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
+        <div style={styles.tabsInner}>
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              style={{
+                ...styles.tab,
+                ...(activeTab === tab.id ? styles.tabActive : {}),
+              }}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </nav>
 
       {/* ── Tab content ── */}
       <main style={styles.body}>
-        {activeTab === "overview" && (
-          <OverviewTab zones={zones} alerts={alerts} matchPhase={matchPhase} />
-        )}
-        {activeTab === "crowd" && (
-          <CrowdTab zones={zones} matchPhase={matchPhase} />
-        )}
-        {activeTab === "security" && (
-          <SecurityTab zones={zones} />
-        )}
-        {activeTab === "analytics" && (
-          <AnalyticsTab />
-        )}
-        {activeTab === "audit" && (
-          <AuditTrail />
-        )}
+        <div style={styles.bodyInner}>
+          {activeTab === "overview" && (
+            <OverviewTab zones={zones} alerts={alerts} matchPhase={matchPhase} />
+          )}
+          {activeTab === "crowd" && (
+            <CrowdTab zones={zones} matchPhase={matchPhase} />
+          )}
+          {activeTab === "security" && (
+            <SecurityTab zones={zones} />
+          )}
+          {activeTab === "analytics" && (
+            <AnalyticsTab />
+          )}
+          {activeTab === "audit" && (
+            <AuditTrail />
+          )}
+        </div>
       </main>
 
       {/* ── Evacuation plan modal — rendered over all tabs ── */}
@@ -420,29 +443,32 @@ function OverviewTab({ zones, alerts, matchPhase }) {
         display: "grid",
         gridTemplateColumns: "1fr 340px",
         gridTemplateRows: "1fr 180px",
-        gap: "1px",
+        gap: "8px",
         height: "100%",
-        background: "#334155",
+        background: "transparent",
       }}
     >
       {/* Heatmap — spans both rows on the left */}
-      <div style={{ gridRow: "1 / 3", background: "#0f172a", overflow: "hidden" }}>
+      <div style={{ gridRow: "1 / 3", background: "#12182b", overflow: "hidden", borderRadius: 12, border: "1px solid #222a43" }}>
         <CrowdHeatmap zones={zones} matchPhase={matchPhase} />
       </div>
 
       {/* Alert feed */}
-      <div style={{ background: "#0f172a", overflow: "hidden" }}>
+      <div style={{ background: "#12182b", overflow: "hidden", borderRadius: 12, border: "1px solid #222a43" }}>
         <AlertFeed alerts={alerts} />
       </div>
 
       {/* Weather + LED board stacked */}
       <div
         style={{
-          background: "#0f172a",
+          background: "#12182b",
           display: "flex",
           flexDirection: "column",
-          gap: "1px",
+          gap: "8px",
           overflow: "hidden",
+          borderRadius: 12,
+          border: "1px solid #222a43",
+          padding: 8,
         }}
       >
         <WeatherWidget />
@@ -464,15 +490,15 @@ function CrowdTab({ zones, matchPhase }) {
       style={{
         display: "grid",
         gridTemplateColumns: "1fr 360px",
-        gap: "1px",
+        gap: "8px",
         height: "100%",
-        background: "#334155",
+        background: "transparent",
       }}
     >
-      <div style={{ background: "#0f172a", overflow: "hidden" }}>
+      <div style={{ background: "#12182b", overflow: "hidden", borderRadius: 12, border: "1px solid #222a43" }}>
         <CrowdHeatmap zones={zones} matchPhase={matchPhase} showControls />
       </div>
-      <div style={{ background: "#0f172a", overflow: "hidden" }}>
+      <div style={{ background: "#12182b", overflow: "hidden", borderRadius: 12, border: "1px solid #222a43", padding: 10 }}>
         <GatePanel zones={zones} />
       </div>
     </div>
@@ -491,15 +517,15 @@ function SecurityTab({ zones }) {
       style={{
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
-        gap: "1px",
+        gap: "8px",
         height: "100%",
-        background: "#334155",
+        background: "transparent",
       }}
     >
-      <div style={{ background: "#0f172a", overflow: "hidden" }}>
+      <div style={{ background: "#12182b", overflow: "hidden", borderRadius: 12, border: "1px solid #222a43", padding: 10 }}>
         <SOSTracker zones={zones} />
       </div>
-      <div style={{ background: "#0f172a", overflow: "hidden" }}>
+      <div style={{ background: "#12182b", overflow: "hidden", borderRadius: 12, border: "1px solid #222a43", padding: 10 }}>
         <VolunteerMap zones={zones} />
       </div>
     </div>

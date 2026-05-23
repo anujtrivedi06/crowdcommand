@@ -94,154 +94,242 @@ const AnalyticsTab = () => {
     };
   }, [zones, gateScanStats, sosList, securityAlerts, fraudAlerts, volunteers, auditEvents]);
 
-  /**
-   * Determines density risk colour.
-   * @param {number} density
-   * @returns {string} Tailwind colour class
-   */
-  const densityColor = (density) => {
-    if (density >= 75) return 'text-red-400';
-    if (density >= 50) return 'text-amber-400';
-    return 'text-green-400';
+  const valueColor = (kind, value) => {
+    if (kind === 'density') {
+      if (value > 75) return '#f87171';
+      if (value >= 50) return '#fbbf24';
+      return '#22d3ee';
+    }
+
+    if (kind === 'incidents') {
+      if (value >= 5) return '#f87171';
+      if (value >= 2) return '#fbbf24';
+      return '#22d3ee';
+    }
+
+    return '#22d3ee';
   };
 
-  /**
-   * Determines incident severity colour.
-   * @param {number} count
-   * @returns {string}
-   */
-  const incidentColor = (count) => {
-    if (count >= 5) return 'text-red-400';
-    if (count >= 2) return 'text-amber-400';
-    return 'text-green-400';
+  const styles = {
+    shell: {
+      height: '100%',
+      overflowY: 'auto',
+      padding: 16,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 14,
+    },
+    heading: {
+      margin: 0,
+      color: '#e4ebff',
+      fontSize: 18,
+      fontWeight: 800,
+      letterSpacing: 0.2,
+    },
+    cardGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+      gap: 12,
+    },
+    card: {
+      background: '#1a1a2e',
+      border: '1px solid #2a2a4a',
+      borderRadius: 12,
+      padding: 20,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+      minHeight: 152,
+    },
+    label: {
+      color: '#93a5c4',
+      fontSize: 11,
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+      fontWeight: 700,
+    },
+    value: {
+      fontSize: 32,
+      fontWeight: 800,
+      lineHeight: 1.05,
+    },
+    subtext: {
+      color: '#9cb0cf',
+      fontSize: 12,
+      lineHeight: 1.45,
+    },
+    detail: {
+      fontSize: 12,
+      fontWeight: 700,
+      letterSpacing: 0.2,
+    },
+    panel: {
+      background: '#151b30',
+      border: '1px solid #283150',
+      borderRadius: 12,
+      padding: 16,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10,
+    },
+    panelTitle: {
+      margin: 0,
+      color: '#e4ebff',
+      fontSize: 15,
+      fontWeight: 700,
+    },
+    zoneList: {
+      margin: 0,
+      padding: 0,
+      listStyle: 'none',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10,
+    },
+    zoneRowTop: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 6,
+    },
+    zoneName: {
+      color: '#dbe5ff',
+      fontSize: 13,
+      fontWeight: 600,
+      letterSpacing: 0.2,
+    },
+    zonePercent: {
+      fontSize: 13,
+      fontWeight: 700,
+    },
+    barTrack: {
+      width: '100%',
+      background: '#2b3555',
+      borderRadius: 999,
+      height: 9,
+      overflow: 'hidden',
+    },
+    barFill: {
+      height: '100%',
+      borderRadius: 999,
+      transition: 'width 420ms ease',
+    },
+    rowMeta: {
+      marginTop: 4,
+      color: '#93a5c4',
+      fontSize: 11,
+      lineHeight: 1.3,
+    },
+    dot: {
+      width: 10,
+      height: 10,
+      borderRadius: '50%',
+      display: 'inline-block',
+      marginRight: 8,
+    },
   };
+
+  const zoneEntries = (zones || [])
+    .slice()
+    .sort((a, b) => String(a.zoneId || a.id).localeCompare(String(b.zoneId || b.id)));
 
   return (
-    <div className="p-4 space-y-4">
-      <h2 className="text-white font-bold text-lg tracking-wide mb-2">Live Analytics</h2>
+    <div style={styles.shell}>
+      <h2 style={styles.heading}>Live Analytics</h2>
 
-      {/* Top 4 stat cards */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {/* Card 1 — Total fans */}
+      <section style={styles.cardGrid}>
         <StatCard
-          icon="👥"
           label="Fans Inside"
           value={metrics.totalFans.toLocaleString('en-IN')}
-          subtext={`of 35,000 capacity`}
-          valueClass="text-blue-400"
+          valueColor={valueColor('normal', metrics.totalFans)}
+          subtext="of 35,000 capacity"
           detail={`${Math.round((metrics.totalFans / 35000) * 100)}% full`}
-          detailClass={metrics.totalFans / 35000 > 0.85 ? 'text-red-400' : 'text-gray-400'}
+          detailColor={metrics.totalFans / 35000 > 0.85 ? '#fbbf24' : '#9cb0cf'}
+          styles={styles}
         />
 
-        {/* Card 2 — Average density */}
         <StatCard
-          icon="🌡️"
           label="Avg Density"
           value={`${metrics.avgDensity}%`}
+          valueColor={valueColor('density', metrics.avgDensity)}
           subtext={
             metrics.peakZone
-              ? `Peak: Zone ${metrics.peakZone.zoneId || metrics.peakZone.id} at ${metrics.peakZone.density}%`
-              : 'Across 12 zones'
+              ? `Peak: ${metrics.peakZone.zoneId || metrics.peakZone.id} at ${metrics.peakZone.density || 0}%`
+              : 'Across all active zones'
           }
-          valueClass={densityColor(metrics.avgDensity)}
-          detail={
-            metrics.avgDensity >= 75
-              ? 'CRITICAL'
-              : metrics.avgDensity >= 50
-              ? 'ELEVATED'
-              : 'NORMAL'
-          }
-          detailClass={densityColor(metrics.avgDensity)}
+          detail={metrics.avgDensity > 75 ? 'Critical' : metrics.avgDensity >= 50 ? 'Elevated' : 'Normal'}
+          detailColor={valueColor('density', metrics.avgDensity)}
+          styles={styles}
         />
 
-        {/* Card 3 — Active incidents */}
         <StatCard
-          icon="🚨"
           label="Active Incidents"
           value={metrics.totalIncidents}
-          subtext={`SOS: ${metrics.activeSOS} · Security: ${metrics.activeSecAlerts} · Fraud: ${metrics.activeFraud}`}
-          valueClass={incidentColor(metrics.totalIncidents)}
-          detail={metrics.totalIncidents === 0 ? 'All clear' : 'Requires attention'}
-          detailClass={metrics.totalIncidents === 0 ? 'text-green-400' : 'text-red-400'}
+          valueColor={valueColor('incidents', metrics.totalIncidents)}
+          subtext={`SOS ${metrics.activeSOS} · Security ${metrics.activeSecAlerts} · Fraud ${metrics.activeFraud}`}
+          detail={metrics.totalIncidents === 0 ? 'All clear' : 'Needs attention'}
+          detailColor={metrics.totalIncidents === 0 ? '#22d3ee' : '#f87171'}
+          styles={styles}
         />
 
-        {/* Card 4 — Volunteer coverage */}
         <StatCard
-          icon="🦺"
           label="Volunteers"
           value={`${metrics.availableVols}/${metrics.totalVols}`}
-          subtext={`Assigned: ${metrics.assignedVols} · Responding: ${metrics.respondingVols}`}
-          valueClass="text-cyan-400"
+          valueColor={valueColor('normal', metrics.availableVols)}
+          subtext={`Assigned ${metrics.assignedVols} · Responding ${metrics.respondingVols}`}
           detail={
             metrics.totalVols > 0
               ? `${Math.round((metrics.availableVols / metrics.totalVols) * 100)}% available`
               : 'No data'
           }
-          detailClass="text-gray-400"
+          detailColor="#9cb0cf"
+          styles={styles}
         />
-      </div>
+      </section>
 
-      {/* Zone density breakdown */}
-      <div className="bg-gray-800 rounded-lg p-4">
-        <h3 className="text-white font-semibold text-sm mb-3">Zone Density Breakdown</h3>
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-          {(zones || [])
-            .slice()
-            .sort((a, b) => (a.zoneId || a.id || 0) - (b.zoneId || b.id || 0))
-            .map((zone) => {
-              const id = zone.zoneId || zone.id;
-              const d = zone.density || 0;
-              const trend = zone.trend || 'stable';
-              const trendIcon = trend === 'increasing' ? '↑' : trend === 'decreasing' ? '↓' : '→';
-              const trendColor =
-                trend === 'increasing'
-                  ? 'text-red-400'
-                  : trend === 'decreasing'
-                  ? 'text-green-400'
-                  : 'text-gray-400';
-              const barColor =
-                d >= 75 ? 'bg-red-500' : d >= 50 ? 'bg-amber-500' : 'bg-green-500';
+      <section style={styles.panel}>
+        <h3 style={styles.panelTitle}>Zone Density Breakdown</h3>
 
-              return (
-                <div key={id} className="bg-gray-700 rounded p-2 flex flex-col gap-1">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-300 font-mono">Z{id}</span>
-                    <span className={`text-xs font-bold ${trendColor}`}>{trendIcon}</span>
-                  </div>
-                  {/* Bar */}
-                  <div className="w-full bg-gray-600 rounded-full h-1.5">
-                    <div
-                      className={`h-1.5 rounded-full transition-all duration-700 ${barColor}`}
-                      style={{ width: `${d}%` }}
-                    />
-                  </div>
-                  <span className={`text-xs font-bold ${densityColor(d)}`}>{d}%</span>
+        <ul style={styles.zoneList}>
+          {zoneEntries.map((zone) => {
+            const zoneId = zone.zoneId || zone.id || 'zone';
+            const density = Math.max(0, Math.min(100, zone.density || 0));
+            const trend = zone.trend || 'stable';
+            const color = density > 75 ? '#ef4444' : density >= 50 ? '#f59e0b' : '#22c55e';
+
+            return (
+              <li key={zoneId}>
+                <div style={styles.zoneRowTop}>
+                  <span style={styles.zoneName}>{String(zoneId).replace('_', ' ').toUpperCase()}</span>
+                  <span style={{ ...styles.zonePercent, color }}>{density}%</span>
                 </div>
-              );
-            })}
-          {(!zones || zones.length === 0) &&
-            Array.from({ length: 12 }, (_, i) => (
-              <div key={i} className="bg-gray-700 rounded p-2 animate-pulse h-14" />
-            ))}
-        </div>
-      </div>
+                <div style={styles.barTrack}>
+                  <div style={{ ...styles.barFill, width: `${density}%`, background: color }} />
+                </div>
+                <div style={styles.rowMeta}>Trend: {trend}</div>
+              </li>
+            );
+          })}
 
-      {/* Agent activity summary */}
-      <div className="bg-gray-800 rounded-lg p-4">
-        <h3 className="text-white font-semibold text-sm mb-3">Agent Activity (Last Hour)</h3>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-blue-500" />
-            <span className="text-sm text-gray-300">
-              <span className="font-bold text-white">{metrics.recentAgentActions}</span> logged events
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-xs text-gray-400">Simulators running</span>
-          </div>
+          {zoneEntries.length === 0 && (
+            <li style={{ color: '#93a5c4', fontSize: 12 }}>Waiting for zone telemetry...</li>
+          )}
+        </ul>
+      </section>
+
+      <section style={styles.panel}>
+        <h3 style={styles.panelTitle}>Agent Activity (Last Hour)</h3>
+        <div style={{ color: '#9cb0cf', fontSize: 13, display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+          <span>
+            <span style={{ ...styles.dot, background: '#22d3ee' }} />
+            <strong style={{ color: '#e4ebff' }}>{metrics.recentAgentActions}</strong> logged events
+          </span>
+          <span>
+            <span style={{ ...styles.dot, background: '#22c55e' }} />
+            Simulators running
+          </span>
         </div>
-      </div>
+      </section>
     </div>
   );
 };
@@ -253,18 +341,13 @@ const AnalyticsTab = () => {
  *           valueClass: string, detail: string, detailClass: string }} props
  * @returns {JSX.Element}
  */
-const StatCard = ({ icon, label, value, subtext, valueClass, detail, detailClass }) => (
-  <div className="bg-gray-800 rounded-lg p-4 flex flex-col gap-1 border border-gray-700 hover:border-gray-500 transition-colors">
-    <div className="flex items-center gap-2 mb-1">
-      <span className="text-xl">{icon}</span>
-      <span className="text-xs text-gray-400 uppercase tracking-wide font-semibold">{label}</span>
-    </div>
-    <span className={`text-3xl font-bold leading-none ${valueClass}`}>{value}</span>
-    <span className="text-xs text-gray-500 leading-snug mt-1">{subtext}</span>
-    {detail && (
-      <span className={`text-xs font-semibold mt-1 ${detailClass}`}>{detail}</span>
-    )}
-  </div>
+const StatCard = ({ label, value, subtext, detail, valueColor, detailColor, styles }) => (
+  <article style={styles.card}>
+    <span style={styles.label}>{label}</span>
+    <span style={{ ...styles.value, color: valueColor }}>{value}</span>
+    <span style={styles.subtext}>{subtext}</span>
+    {detail ? <span style={{ ...styles.detail, color: detailColor }}>{detail}</span> : null}
+  </article>
 );
 
 export default AnalyticsTab;

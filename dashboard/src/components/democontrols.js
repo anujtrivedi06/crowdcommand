@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { triggerSurge, triggerWeatherAlert, triggerDemoSOS, triggerSecurityAlert, triggerEndMatch, resetDemo } from '../services/api';
 
 /**
@@ -41,160 +41,247 @@ const DemoControls = () => {
     }
   };
 
-  const BUTTONS = [
-    {
-      key: 'surge',
-      label: 'Trigger surge at Gate 3',
-      icon: '🔴',
-      description: 'Sets zone 3 density to 85%, triggers surge prediction + gate rerouting',
-      color: 'border-red-600 hover:bg-red-900/40 text-red-300',
-      badgeColor: 'bg-red-700',
-      action: () => triggerSurge({ zoneId: 3, density: 85, trend: 'increasing' }),
+  const BUTTONS = useMemo(
+    () => [
+      {
+        key: 'surge',
+        label: 'Trigger surge at Gate 3',
+        icon: '🔴',
+        description: 'Sets zone_3 density to 85% and activates surge rerouting pipeline.',
+        accent: '#ef4444',
+        action: () => triggerSurge({ zoneId: 'zone_3', density: 85, trend: 'increasing' }),
+      },
+      {
+        key: 'weather',
+        label: 'Trigger weather alert',
+        icon: '🌧️',
+        description: 'Injects severe rain event and routes fans toward covered exits.',
+        accent: '#f59e0b',
+        action: () => triggerWeatherAlert({ type: 'rain', severity: 'high' }),
+      },
+      {
+        key: 'sos',
+        label: 'Trigger SOS (demo fan)',
+        icon: '🆘',
+        description: 'Creates a live SOS incident for the seeded demo fan at zone_5.',
+        accent: '#f43f5e',
+        action: () => triggerDemoSOS(),
+      },
+      {
+        key: 'security',
+        label: 'Trigger security alert',
+        icon: '🛡️',
+        description: 'Posts a high-confidence CCTV anomaly to the zone_7 security feed.',
+        accent: '#fb923c',
+        action: () =>
+          triggerSecurityAlert({
+            zoneId: 'zone_7',
+            label: 'crowd_surge',
+            score: 0.91,
+          }),
+      },
+      {
+        key: 'endmatch',
+        label: 'End match',
+        icon: '🏁',
+        description: 'Transitions to post-match and starts staggered wave exit messaging.',
+        accent: '#22c55e',
+        action: () => triggerEndMatch(),
+      },
+      {
+        key: 'reset',
+        label: 'Reset demo',
+        icon: '🔄',
+        description: 'Clears alerts and resets crowd state to pre-match baseline.',
+        accent: '#94a3b8',
+        action: () => resetDemo(),
+      },
+    ],
+    []
+  );
+
+  const styles = {
+    shell: {
+      position: 'fixed',
+      right: 18,
+      bottom: 18,
+      zIndex: 1000,
+      width: 'min(430px, calc(100vw - 18px))',
+      borderRadius: 16,
+      border: '1px solid rgba(100, 116, 139, 0.45)',
+      background:
+        'radial-gradient(circle at top right, rgba(59,130,246,0.22), rgba(8,15,33,0.96) 36%), linear-gradient(180deg, rgba(12,19,39,0.98) 0%, rgba(6,12,27,0.97) 100%)',
+      boxShadow: '0 30px 80px rgba(2, 6, 23, 0.72), 0 0 0 1px rgba(59,130,246,0.15)',
+      color: '#e2e8f0',
+      overflow: 'hidden',
+      backdropFilter: 'blur(10px)',
     },
-    {
-      key: 'weather',
-      label: 'Trigger weather alert',
-      icon: '🌧️',
-      description: 'Writes rain event → weather agent → orchestrator → reroutes fans to covered exits',
-      color: 'border-amber-600 hover:bg-amber-900/40 text-amber-300',
-      badgeColor: 'bg-amber-700',
-      action: () => triggerWeatherAlert({ type: 'rain', severity: 'high' }),
+    headerButton: {
+      width: '100%',
+      border: 0,
+      cursor: 'pointer',
+      textAlign: 'left',
+      color: 'inherit',
+      padding: '13px 15px',
+      background: 'linear-gradient(90deg, rgba(30,41,59,0.82) 0%, rgba(30,64,175,0.24) 100%)',
+      borderBottom: '1px solid rgba(100, 116, 139, 0.35)',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      gap: 10,
     },
-    {
-      key: 'sos',
-      label: 'Trigger SOS (demo fan)',
-      icon: '🆘',
-      description: 'Fires full SOS flow for demo fan at zone 5 centre — shows SOSActive screen & responder animation',
-      color: 'border-red-500 hover:bg-red-950/50 text-red-200',
-      badgeColor: 'bg-red-600',
-      action: () =>
-        triggerDemoSOS({
-          fanId: 'demo-fan-001',
-          gateId: 5,
-          lat: 12.9793,
-          lng: 77.5996,
-        }),
+    titleWrap: { display: 'flex', alignItems: 'center', gap: 10 },
+    title: {
+      fontWeight: 800,
+      fontSize: 14,
+      letterSpacing: 0.3,
+      textTransform: 'uppercase',
+      color: '#bfdbfe',
     },
-    {
-      key: 'security',
-      label: 'Trigger security alert',
-      icon: '🛡️',
-      description: 'Writes high-score CCTV anomaly to zone 7 → security alert in feed',
-      color: 'border-orange-600 hover:bg-orange-900/40 text-orange-300',
-      badgeColor: 'bg-orange-700',
-      action: () =>
-        triggerSecurityAlert({
-          zoneId: 7,
-          label: 'crowd_surge',
-          score: 0.91,
-        }),
+    badge: {
+      fontSize: 10,
+      fontWeight: 700,
+      borderRadius: 999,
+      padding: '2px 8px',
+      color: '#f8fafc',
+      background: 'linear-gradient(120deg, #2563eb 0%, #0ea5e9 100%)',
     },
-    {
-      key: 'endmatch',
-      label: 'End match',
-      icon: '🏁',
-      description: 'Sets matchPhase → post-match, starts wave exit staggering sequence across 3 waves',
-      color: 'border-green-600 hover:bg-green-900/40 text-green-300',
-      badgeColor: 'bg-green-700',
-      action: () => triggerEndMatch(),
+    body: { padding: 14, maxHeight: '70vh', overflowY: 'auto' },
+    helper: {
+      fontSize: 12,
+      lineHeight: 1.45,
+      color: '#94a3b8',
+      margin: 0,
+      marginBottom: 12,
     },
-    {
-      key: 'reset',
-      label: 'Reset demo',
-      icon: '🔄',
-      description: 'Clears all alerts, SOSes, fraud flags — resets all zones to pre-match densities',
-      color: 'border-gray-500 hover:bg-gray-700/60 text-gray-300',
-      badgeColor: 'bg-gray-600',
-      action: () => resetDemo(),
+    sequenceBox: {
+      marginTop: 12,
+      borderRadius: 12,
+      border: '1px solid rgba(100, 116, 139, 0.3)',
+      background: 'rgba(15, 23, 42, 0.56)',
+      padding: 10,
     },
-  ];
+    sequenceTitle: {
+      margin: 0,
+      marginBottom: 8,
+      color: '#93c5fd',
+      fontSize: 12,
+      fontWeight: 700,
+      letterSpacing: 0.2,
+    },
+    sequenceList: {
+      margin: 0,
+      paddingLeft: 16,
+      color: '#cbd5e1',
+      fontSize: 12,
+      lineHeight: 1.45,
+    },
+    resultText: {
+      marginTop: 7,
+      fontSize: 12,
+      borderRadius: 9,
+      padding: '7px 10px',
+      border: '1px solid transparent',
+      lineHeight: 1.4,
+    },
+  };
 
   return (
-    <div
-      className={`fixed bottom-4 right-4 z-50 w-80 bg-gray-900 border border-yellow-500/70 rounded-xl shadow-2xl transition-all duration-300 ${
-        collapsed ? 'h-12 overflow-hidden' : ''
-      }`}
-      role="region"
-      aria-label="Demo controls panel"
-    >
-      {/* Header bar */}
+    <div style={styles.shell} role="region" aria-label="Demo controls panel">
       <button
         onClick={() => setCollapsed((v) => !v)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-yellow-500/20 hover:bg-yellow-500/30 rounded-t-xl transition-colors"
+        style={styles.headerButton}
         aria-expanded={!collapsed}
         title="Toggle demo controls panel"
       >
-        <div className="flex items-center gap-2">
-          <span className="text-yellow-400 font-bold text-sm tracking-wide">⚡ Demo Controls</span>
-          <span className="text-[10px] bg-yellow-500 text-black font-bold px-1.5 py-0.5 rounded-full uppercase">
-            Judging
-          </span>
+        <div style={styles.titleWrap}>
+          <span style={styles.title}>Demo Control Deck</span>
+          <span style={styles.badge}>Judging</span>
         </div>
-        <span className="text-yellow-400 text-xs">{collapsed ? '▲' : '▼'}</span>
+        <span style={{ color: '#93c5fd', fontWeight: 700 }}>{collapsed ? '+' : '-'}</span>
       </button>
 
-      {/* Buttons */}
       {!collapsed && (
-        <div className="p-3 space-y-2 max-h-[70vh] overflow-y-auto">
-          <p className="text-[10px] text-gray-500 leading-snug mb-2">
-            These buttons trigger specific demo scenarios end-to-end. Each fires real Firestore writes
-            and agent flows — not mocks.
+        <div style={styles.body}>
+          <p style={styles.helper}>
+            These actions trigger real end-to-end demo scenarios. Each click writes to Firestore and
+            flows through live agents.
           </p>
 
           {BUTTONS.map((btn) => {
-            const isLoading = loading[btn.key];
+            const isLoading = Boolean(loading[btn.key]);
             const result = results[btn.key];
 
             return (
-              <div key={btn.key} className="flex flex-col gap-1">
+              <div key={btn.key} style={{ marginBottom: 12 }}>
                 <button
                   onClick={() => run(btn.key, btn.action)}
                   disabled={isLoading}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border text-left transition-all ${btn.color} ${
-                    isLoading ? 'opacity-60 cursor-wait' : 'cursor-pointer'
-                  }`}
                   title={btn.description}
+                  style={{
+                    width: '100%',
+                    borderRadius: 12,
+                    border: `1px solid ${btn.accent}55`,
+                    background: `linear-gradient(120deg, ${btn.accent}22 0%, rgba(15,23,42,0.88) 75%)`,
+                    color: '#e2e8f0',
+                    textAlign: 'left',
+                    cursor: isLoading ? 'wait' : 'pointer',
+                    padding: '12px 12px',
+                    display: 'grid',
+                    gridTemplateColumns: '32px 1fr auto',
+                    gap: 10,
+                    alignItems: 'start',
+                    opacity: isLoading ? 0.72 : 1,
+                    transition: 'transform 120ms ease, box-shadow 120ms ease',
+                    boxShadow: `0 8px 20px ${btn.accent}22`,
+                  }}
                 >
-                  <span className="text-lg flex-shrink-0">{btn.icon}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold leading-tight">{btn.label}</span>
-                      {isLoading && (
-                        <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin flex-shrink-0" />
-                      )}
-                    </div>
-                    <p className="text-[10px] text-gray-500 leading-snug mt-0.5 truncate">
+                  <span style={{ fontSize: 20, lineHeight: '24px' }}>{btn.icon}</span>
+                  <span style={{ display: 'block', lineHeight: 1.28 }}>
+                    <span style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 5, color: '#eaf2ff' }}>
+                      {btn.label}
+                    </span>
+                    <span style={{ display: 'block', fontSize: 11.5, color: '#b8c7e4', lineHeight: 1.45 }}>
                       {btn.description}
-                    </p>
-                  </div>
+                    </span>
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      marginTop: 2,
+                      height: 10,
+                      width: 10,
+                      borderRadius: '50%',
+                      background: isLoading ? '#f59e0b' : btn.accent,
+                      boxShadow: `0 0 0 4px ${btn.accent}22`,
+                    }}
+                  />
                 </button>
 
-                {/* Result feedback */}
                 {result && (
                   <div
-                    className={`text-[10px] px-3 py-1 rounded-md ${
-                      result.ok
-                        ? 'bg-green-900/40 text-green-400 border border-green-700/40'
-                        : 'bg-red-900/40 text-red-400 border border-red-700/40'
-                    }`}
+                    style={{
+                      ...styles.resultText,
+                      color: result.ok ? '#86efac' : '#fca5a5',
+                      background: result.ok ? 'rgba(22, 101, 52, 0.24)' : 'rgba(127, 29, 29, 0.28)',
+                      borderColor: result.ok ? 'rgba(34, 197, 94, 0.45)' : 'rgba(248, 113, 113, 0.45)',
+                    }}
                   >
-                    {result.ok ? '✓' : '✗'} {result.msg}
+                    {result.ok ? 'Success' : 'Failed'}: {result.msg}
                   </div>
                 )}
               </div>
             );
           })}
 
-          {/* Demo sequence reminder */}
-          <div className="mt-3 bg-gray-800 rounded-lg p-3 border border-gray-700">
-            <p className="text-[10px] text-yellow-400 font-semibold mb-1">Demo sequence</p>
-            <ol className="text-[10px] text-gray-400 space-y-0.5 list-decimal list-inside leading-snug">
-              <li>Surge at Gate 3 → surge alert + rerouting</li>
-              <li>SOS (demo fan) → SOSActive + responder</li>
-              <li>Weather alert → covered exit rerouting</li>
-              <li>End match → wave exit staggering</li>
-              <li>Show Audit Trail → full accountability log</li>
-              <li>Reset demo → clean state for next judge</li>
+          <div style={styles.sequenceBox}>
+            <p style={styles.sequenceTitle}>Recommended demo sequence</p>
+            <ol style={styles.sequenceList}>
+              <li>Surge at Gate 3 for rerouting decision</li>
+              <li>SOS trigger and responder workflow</li>
+              <li>Weather reroute to covered exits</li>
+              <li>End-match wave exit staggering</li>
+              <li>Reset state for the next run</li>
             </ol>
           </div>
         </div>

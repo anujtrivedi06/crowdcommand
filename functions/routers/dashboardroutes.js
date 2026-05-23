@@ -7,6 +7,7 @@
  */
 
 const admin = require("firebase-admin");
+const functions = require("firebase-functions");
 const {
   getDb,
   getMatchState,
@@ -673,14 +674,14 @@ async function setMatchPhase(req, res) {
 }
 
 module.exports = {
-  triggerSurge,
-  triggerWeatherAlert,
-  triggerDemoSos,
-  triggerSecurityAlert,
-  endMatch,
-  confirmEvacuation,
-  rejectEvacuation,
-  resetDemo,
-  getMatchStateHandler,
-  setMatchPhase,
+  triggerSurge: functions.https.onRequest(triggerSurge),
+  triggerWeatherAlert: functions.https.onRequest(triggerWeatherAlert),
+  triggerDemoSos: functions.https.onRequest(triggerDemoSos),
+  triggerSecurityAlert: functions.https.onRequest(triggerSecurityAlert),
+  endMatch: functions.https.onRequest(endMatch),
+  confirmEvacuation: functions.https.onRequest(confirmEvacuation),
+  rejectEvacuation: functions.https.onRequest(rejectEvacuation),
+  resetDemo: functions.https.onRequest(resetDemo),
+  getMatchStateHandler: functions.https.onRequest(getMatchStateHandler),
+  setMatchPhase: functions.https.onRequest(setMatchPhase),
 };

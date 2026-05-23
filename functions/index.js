@@ -21,8 +21,11 @@ if (!admin.apps.length) {
 
 const dashboardRoutes = require("./routers/dashboardroutes");
 
-/** Returns all zone densities and gate statuses for the command dashboard. */
-exports.getDashboardState = dashboardRoutes.getDashboardState;
+/** Returns current match state for dashboard polling. */
+exports.getMatchState = dashboardRoutes.getMatchStateHandler;
+
+/** Allows operator to manually set match phase for demo pacing. */
+exports.setMatchPhase = dashboardRoutes.setMatchPhase;
 
 /** Triggers the wave exit staggering sequence when the operator ends the match. */
 exports.endMatch = dashboardRoutes.endMatch;
@@ -33,8 +36,17 @@ exports.confirmEvacuation = dashboardRoutes.confirmEvacuation;
 /** Resets all demo state to pre-match baseline. */
 exports.resetDemo = dashboardRoutes.resetDemo;
 
-/** Triggers a demo scenario (surge, SOS, weather, security alert). */
-exports.triggerDemoScenario = dashboardRoutes.triggerDemoScenario;
+/** Demo trigger: force zone surge scenario. */
+exports.triggerSurge = dashboardRoutes.triggerSurge;
+
+/** Demo trigger: inject weather alert event. */
+exports.triggerWeatherAlert = dashboardRoutes.triggerWeatherAlert;
+
+/** Demo trigger: inject SOS from seeded fan persona. */
+exports.triggerDemoSos = dashboardRoutes.triggerDemoSos;
+
+/** Demo trigger: inject high-confidence security anomaly. */
+exports.triggerSecurityAlert = dashboardRoutes.triggerSecurityAlert;
 
 // ─── HTTP: Fan PWA routes ─────────────────────────────────────────────────────
 

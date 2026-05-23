@@ -4,8 +4,9 @@
  * Errors are caught and re-thrown with a meaningful message.
  */
 
-const FUNCTIONS_BASE_URL = process.env.REACT_APP_FUNCTIONS_BASE_URL ||
-  'https://us-central1-crowdcommand.cloudfunctions.net';
+import { getFunctionsBaseUrl } from '../firebase';
+
+const FUNCTIONS_BASE_URL = process.env.REACT_APP_FUNCTIONS_BASE_URL || getFunctionsBaseUrl();
 
 /**
  * Generic fetch wrapper with error handling.
@@ -100,10 +101,19 @@ export async function rejectEvacPlan(planId, reason, operatorId = 'operator-dash
  * @param {string|number} zoneId - Zone identifier (e.g. "zone-3").
  * @returns {Promise<object>} Trigger result.
  */
-export async function triggerSurge(zoneId) {
-  return apiFetch('/demo/triggerSurge', {
+export async function triggerSurge(zoneInput = 'zone_3') {
+  const payload =
+    typeof zoneInput === 'object' && zoneInput !== null
+      ? {
+          zoneId: zoneInput.zoneId || 'zone_3',
+          density: zoneInput.density,
+          trend: zoneInput.trend,
+        }
+      : { zoneId: zoneInput };
+
+  return apiFetch('/triggerSurge', {
     method: 'POST',
-    body: { zoneId },
+    body: payload,
   });
 }
 
@@ -112,10 +122,18 @@ export async function triggerSurge(zoneId) {
  * @param {string} [eventType='rain'] - Weather event type.
  * @returns {Promise<object>} Trigger result.
  */
-export async function triggerWeatherAlert(eventType = 'rain') {
-  return apiFetch('/demo/triggerWeather', {
+export async function triggerWeatherAlert(weatherInput = 'rain') {
+  const payload =
+    typeof weatherInput === 'object' && weatherInput !== null
+      ? {
+          type: weatherInput.type || weatherInput.eventType || 'rain',
+          severity: weatherInput.severity || 'moderate',
+        }
+      : { type: weatherInput };
+
+  return apiFetch('/triggerWeatherAlert', {
     method: 'POST',
-    body: { eventType },
+    body: payload,
   });
 }
 
@@ -124,7 +142,7 @@ export async function triggerWeatherAlert(eventType = 'rain') {
  * @returns {Promise<object>} SOS trigger result including exit route.
  */
 export async function triggerDemoSOS() {
-  return apiFetch('/demo/triggerSOS', { method: 'POST' });
+  return apiFetch('/triggerDemoSos', { method: 'POST' });
 }
 
 /**
@@ -132,10 +150,19 @@ export async function triggerDemoSOS() {
  * @param {string|number} zoneId - Zone to target (e.g. "zone-7").
  * @returns {Promise<object>} Trigger result.
  */
-export async function triggerSecurityAlert(zoneId) {
-  return apiFetch('/demo/triggerSecurity', {
+export async function triggerSecurityAlert(securityInput = 'zone_7') {
+  const payload =
+    typeof securityInput === 'object' && securityInput !== null
+      ? {
+          zoneId: securityInput.zoneId || 'zone_7',
+          label: securityInput.label,
+          score: securityInput.score,
+        }
+      : { zoneId: securityInput };
+
+  return apiFetch('/triggerSecurityAlert', {
     method: 'POST',
-    body: { zoneId },
+    body: payload,
   });
 }
 
@@ -144,7 +171,7 @@ export async function triggerSecurityAlert(zoneId) {
  * @returns {Promise<object>} Reset confirmation.
  */
 export async function resetDemo() {
-  return apiFetch('/demo/reset', { method: 'POST' });
+  return apiFetch('/resetDemo', { method: 'POST' });
 }
 
 // ---------------------------------------------------------------------------
